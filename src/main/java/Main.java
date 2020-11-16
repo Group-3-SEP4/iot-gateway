@@ -31,13 +31,6 @@ public class Main {
                 e.printStackTrace();
             }
         }
-//
-//        LoraWanListenerImpl el = new LoraWanListenerImpl( "room1", 1,properties.getLoraUrl() + properties.getLoraToken());
-//        el.run();
-
-
-
-
 
 
     }
