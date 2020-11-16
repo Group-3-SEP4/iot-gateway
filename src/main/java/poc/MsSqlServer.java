@@ -4,10 +4,11 @@ import util.ApplicationProperties;
 
 import java.sql.*;
 
-class ConnectMSSQLServer implements IDatabase
+class MsSqlServer implements SqlServer
 {
     private static final ApplicationProperties properties = ApplicationProperties.getInstance();
     private Connection connection;
+
 
     @Override
     public void connect(String db_connect_string, String db_userid, String db_password)
@@ -29,29 +30,19 @@ class ConnectMSSQLServer implements IDatabase
     @Override
     public void insert(int hum, int temp, int co2) throws SQLException {
 
-        String query = "INSERT INTO " + properties.getDbTableName() + "(" +
-                "humidity, " +
-                "temperature, " +
-                "co2, " +
-                "time" +
-                ") VALUES (" +
-                hum + ", " +
-                temp + ", " +
-                co2 + ", " +
-                "GETDATE()" +
-                ")";
+        String query = String.format("INSERT INTO %s (humidity, temperature, co2, time) VALUES (%d, %d, %d, GETDATE())", properties.getDbTableName(), hum, temp, co2);
         Statement statement = connection.createStatement();
         statement.executeUpdate(query);
         System.out.println("Inserted into database");
         connection.close();
     }
 
+    // test sql
     public static void main(String[] args)
     {
-
         System.out.println(properties.getDbUser());
         System.out.println(properties.getDbPassword());
-        ConnectMSSQLServer connServer = new ConnectMSSQLServer();
+        MsSqlServer connServer = new MsSqlServer();
         connServer.connect(properties.getDbUrl(), properties.getDbUser(),properties.getDbPassword());
     }
 }

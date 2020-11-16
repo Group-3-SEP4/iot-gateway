@@ -39,7 +39,7 @@ public class LoraWanListenerImpl implements Runnable{
 
 				System.out.println(String.format("Recieved:\t Humidity: %d, Temperature: %d, Co2: %d", hum, temp, co2));
 
-				ConnectMSSQLServer db = new ConnectMSSQLServer();
+				MsSqlServer db = new MsSqlServer();
 				db.connect(properties.getDbUrl(), properties.getDbUser(),properties.getDbPassword());
 				try {
 					db.insert(hum, temp, co2);

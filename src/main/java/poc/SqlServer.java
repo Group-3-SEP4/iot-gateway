@@ -2,7 +2,7 @@ package poc;
 
 import java.sql.SQLException;
 
-public interface IDatabase {
+public interface SqlServer {
 
 
 
