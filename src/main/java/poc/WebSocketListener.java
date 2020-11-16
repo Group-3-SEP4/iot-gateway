@@ -11,7 +11,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 public class WebSocketListener implements WebSocket.Listener {
-	public static String STATUS = "WebSocket is closed";
 
 	private final ArrayDeque<String> queue;
 	private WebSocket server = null;
@@ -22,13 +21,10 @@ public class WebSocketListener implements WebSocket.Listener {
 		HttpClient client = HttpClient.newHttpClient();
 		CompletableFuture<WebSocket> ws = client.newWebSocketBuilder()
 				.buildAsync(URI.create(url), this);
-
 		server = ws.join();
 
 
 	}
-
-
 
 	// Send down-link message to device
 	// Must be in Json format according to https://github.com/ihavn/IoT_Semester_project/blob/master/LORA_NETWORK_SERVER.md
@@ -48,7 +44,7 @@ public class WebSocketListener implements WebSocket.Listener {
 	//onError()
 	public void onError​(WebSocket webSocket, Throwable error) {
 		System.out.println("A " + error.getCause() + " exception was thrown.");
-		System.out.println("Message: " + error.getLocalizedMessage());
+		System.out.println("Message: " + error.getLocalizedMessage() + " stack: " + error.getMessage());
 		webSocket.abort();
 	}
 
@@ -87,4 +83,5 @@ public class WebSocketListener implements WebSocket.Listener {
 	public String getMessage() {
 		return queue.poll();
 	}
+
 }
