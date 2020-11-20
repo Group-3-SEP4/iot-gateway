@@ -63,7 +63,7 @@ public class LoraWanListenerImpl implements Runnable{
 		int index = 0;
 		int hum = Convert.convertHexByteToInt(hex[index++], hex[index++], hex[index++], hex[index++]);
 		int temp = Convert.convertHexByteToInt(hex[index++], hex[index++], hex[index++], hex[index++]);
-		int co2 = Convert.convertHexByteToInt(hex[index++], hex[index++], hex[index++], hex[index]);
+		int co2 = Convert.convertHexByteToInt(hex[index++], hex[index++], hex[index++], hex[index++]);
 		int serv = Convert.convertHexByteToInt(hex[index++], hex[index++], hex[index++], hex[index]);
 
 		System.out.println(String.format("Reading - %s\t- Device {%s} reading: {humidity: %d}, {temperature: %d}, {co2: %d}, {servo: %d}", timestamp, deviceId, hum, temp, co2, serv));
