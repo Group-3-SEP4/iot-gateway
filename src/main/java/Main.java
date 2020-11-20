@@ -1,11 +1,14 @@
 
 
-import poc.LoraWanListenerImpl;
-import poc.WebSocketListener;
+import repository.remoteDataSource.LoraWanListenerImpl;
 import util.ApplicationProperties;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 
 public class Main {
@@ -16,10 +19,11 @@ public class Main {
 
     public static void main(String[] args) {
 
-        String url = properties.getLoraUrl() + properties.getLoraToken();
 
-        LoraWanListenerImpl lw = new LoraWanListenerImpl(url);
+
+        String url = properties.getLoraUrl() + properties.getLoraToken();
         executorService = new ScheduledThreadPoolExecutor(4);
+        LoraWanListenerImpl lw = new LoraWanListenerImpl(url);
         executorService.submit(lw);
 
 

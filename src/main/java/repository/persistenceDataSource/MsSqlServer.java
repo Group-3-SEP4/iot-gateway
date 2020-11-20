@@ -1,10 +1,11 @@
-package poc;
+package repository.persistenceDataSource;
 
 import util.ApplicationProperties;
 
 import java.sql.*;
+import java.time.LocalDateTime;
 
-class MsSqlServer implements SqlServer
+public class MsSqlServer implements Database
 {
     private static final ApplicationProperties properties = ApplicationProperties.getInstance();
     private Connection connection;
@@ -16,7 +17,7 @@ class MsSqlServer implements SqlServer
         try {
             Class.forName(properties.getDbDriver());
             connection = DriverManager.getConnection(db_connect_string, db_userid, db_password);
-            System.out.println("connected");
+//            System.out.println("connected to database at: " + db_connect_string);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -28,13 +29,18 @@ class MsSqlServer implements SqlServer
     }
 
     @Override
-    public void insert(int hum, int temp, int co2) throws SQLException {
+    public void insert(String deviceId, int hum, int temp, int co2, int servo, Timestamp time) throws SQLException {
 
-        String query = String.format("INSERT INTO %s (humidity, temperature, co2, time) VALUES (%d, %d, %d, GETDATE())", properties.getDbTableName(), hum, temp, co2);
+        String query = String.format("INSERT INTO %s (timestamp, humidityPercentage, carbonDioxide, temperature, servoPositionPercentage, deviceId) VALUES ('%s', %d, %d, %d, %d, '%s')", properties.getDbTableName(), time, hum, co2, temp, servo, deviceId);
         Statement statement = connection.createStatement();
         statement.executeUpdate(query);
-        System.out.println("Inserted into database");
+        System.out.println("Inserted into database at " + LocalDateTime.now());
         connection.close();
+    }
+
+    @Override
+    public void read() {
+
     }
 
     // test sql

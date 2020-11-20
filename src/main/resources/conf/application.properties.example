@@ -1,0 +1,16 @@
+# suppress inspection "SpellCheckingInspection" for whole file
+# Application Properties EXAMPLE. Change filename to application.properties and fill in xxxxxxxx
+db.driver=com.microsoft.sqlserver.jdbc.SQLServerDriver
+db.url=jdbc:sqlserver://xxxxxxxxxx.database.windows.net:1433;database=EnviormentDatabase;
+db.user=xxxxxxxxx
+db.password=xxxxxxxx
+db.tableName=Measurement
+
+
+lora.url=xxxxxxxx
+lora.token=xxxxxxxxxxxx
+
+
+##Socket
+#conn.url=localhost
+#conn.port=2920
