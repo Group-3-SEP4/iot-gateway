@@ -1,7 +1,6 @@
 package repository.remoteDataSource;
 
 
-import mock.WebSocketListenerMockup;
 import models.TeracomModel;
 import repository.persistenceDataSource.MsSqlServer;
 import util.ApplicationProperties;
@@ -60,16 +59,19 @@ public class LoraWanListenerImpl implements Runnable{
 
 	private void storeResult(String deviceId, String hexString, Timestamp timestamp) {
 		char[] hex = hexString.toCharArray();
-		int hum = Convert.convertHexToInt(hex[0], hex[1], hex[2], hex[3]);
-		int temp = Convert.convertHexToInt(hex[4], hex[5], hex[6], hex[7]);
-		int co2 = Convert.convertHexToInt(hex[8], hex[9], hex[10], hex[11]);
 
-		System.out.println(String.format("Reading - %s\t- Device {%s} reading: {humidity: %d}, {temperature: %d}, {co2: %d}", timestamp, deviceId, hum, temp, co2));
+		int index = 0;
+		int hum = Convert.convertHexByteToInt(hex[index++], hex[index++], hex[index++], hex[index++]);
+		int temp = Convert.convertHexByteToInt(hex[index++], hex[index++], hex[index++], hex[index++]);
+		int co2 = Convert.convertHexByteToInt(hex[index++], hex[index++], hex[index++], hex[index]);
+		int serv = Convert.convertHexByteToInt(hex[index++], hex[index++], hex[index++], hex[index]);
+
+		System.out.println(String.format("Reading - %s\t- Device {%s} reading: {humidity: %d}, {temperature: %d}, {co2: %d}, {servo: %d}", timestamp, deviceId, hum, temp, co2, serv));
 
 		MsSqlServer db = new MsSqlServer();
 		db.connect(properties.getDbUrl(), properties.getDbUser(), properties.getDbPassword());
 		try {
-			db.insert(deviceId, hum, temp, co2, 0, timestamp);
+			db.insert(deviceId, hum, temp, co2, serv, timestamp);
 		} catch (SQLException throwable) {
 			throwable.printStackTrace();
 		}

@@ -13,7 +13,7 @@ public class Convert {
 
     }
 
-    public static int convertHexToInt(char... hex) {
+    public static int convertHexByteToInt(char... hex) {
         return Integer.parseInt("" + hex[0] + hex[1] + hex[2] + hex[3], 16);
     }
 }

@@ -98,7 +98,7 @@ public class WebSocketListener implements WebSocket.Listener, WebSocketListenerI
 //		return CompletableFuture.completedFuture("Pong completed.").thenAccept(System.out::println);
 	}
 
-	String text = "";
+	private String text = "";
 
 	//onText()
 	public CompletionStage<?> onText(WebSocket webSocket, CharSequence data, boolean last) {
