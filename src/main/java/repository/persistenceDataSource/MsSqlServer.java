@@ -43,7 +43,7 @@ public class MsSqlServer implements Database
 
     }
 
-    // test sql
+    // test sql TODO: remove before final release
     public static void main(String[] args)
     {
         System.out.println(properties.getDbUser());

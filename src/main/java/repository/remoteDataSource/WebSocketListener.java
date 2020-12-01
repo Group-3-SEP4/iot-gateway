@@ -13,6 +13,7 @@ import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+// TODO: change naming of the websocketlistener interface to something like RemoteDataSource, so in theory it can be changed to RMI or other remote datasource
 public class WebSocketListener implements WebSocket.Listener, WebSocketListenerInterface {
 
 	private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
@@ -50,7 +51,6 @@ public class WebSocketListener implements WebSocket.Listener, WebSocketListenerI
 	}
 
 
-	// TODO: Remove the sout command and use logging feature
 	//onOpen()
 	public void onOpen(WebSocket webSocket) {
 		// This WebSocket will invoke onText, onBinary, onPing, onPong or onClose methods on the associated listener (i.e. receive methods) up to n more times
@@ -69,12 +69,14 @@ public class WebSocketListener implements WebSocket.Listener, WebSocketListenerI
 
 
 	//onError()
+	@Override
 	public void onError(WebSocket webSocket, Throwable error) {
 		logger.log(Level.INFO, "A " + error.getCause() + " exception was thrown. Aborting socket.");
 		webSocket.abort();
 	}
 
 	//onClose()
+	@Override
 	public CompletionStage<?> onClose(WebSocket webSocket, int statusCode, String reason) {
 		logger.log(Level.INFO, "WebSocket closed!" + ", Status:" + statusCode + ", Reason: " + reason);
 		//reconnect
@@ -83,6 +85,7 @@ public class WebSocketListener implements WebSocket.Listener, WebSocketListenerI
 	}
 
 	//onPing()
+	@Override
 	public CompletionStage<?> onPing(WebSocket webSocket, ByteBuffer message) {
 //		logger.log(Level.INFO, "Ping: Client ---> Server. Message: " + message.asCharBuffer().toString()); // TODO: Use another logger, so Debug log can be chosen instead of info to get more graining.
 		webSocket.request(1);
@@ -91,6 +94,7 @@ public class WebSocketListener implements WebSocket.Listener, WebSocketListenerI
 	}
 
 	//onPong()
+	@Override
 	public CompletionStage<?> onPong(WebSocket webSocket, ByteBuffer message) {
 //		logger.log(Level.INFO, "Pong: Client ---> Server. Message: " + message.asCharBuffer().toString());
 		webSocket.request(1);
@@ -101,6 +105,7 @@ public class WebSocketListener implements WebSocket.Listener, WebSocketListenerI
 	private String text = "";
 
 	//onText()
+	@Override
 	public CompletionStage<?> onText(WebSocket webSocket, CharSequence data, boolean last) {
 		String message = data.toString().substring(0, Math.min(data.toString().length(), 200)) + " [...]";
 		logger.log(Level.INFO, "onText(Last:" + last + "): " + message);

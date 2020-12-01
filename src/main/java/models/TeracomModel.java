@@ -4,18 +4,11 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 
-import java.security.Timestamp;
-import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
-
-
 public class TeracomModel {
 
     @SerializedName("total")
     @Expose
     public Integer total;
-
     @SerializedName("perPage")
     @Expose
     public Integer perPage;
@@ -25,7 +18,6 @@ public class TeracomModel {
     @SerializedName("page")
     @Expose
     public Integer page;
-
     @SerializedName("rssi")
     @Expose
     public Integer rssi;
@@ -86,7 +78,6 @@ public class TeracomModel {
     @SerializedName("EUI")
     @Expose
     public String eUI;
-
     @SerializedName("sessionKeyId")
     @Expose
     public Object sessionKeyId;

@@ -1,14 +1,8 @@
-
-
 import repository.remoteDataSource.LoraWanListenerImpl;
 import util.ApplicationProperties;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
 
 
 public class Main {
