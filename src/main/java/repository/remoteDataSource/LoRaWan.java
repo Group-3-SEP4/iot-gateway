@@ -1,8 +1,9 @@
 package repository.remoteDataSource;
 
-import services.LoRaWanListener;
+import util.PropertyChangeSubject;
 
-public interface LoRaWan {
+import java.net.http.WebSocket;
+
+public interface LoRaWan extends WebSocket.Listener, PropertyChangeSubject {
     void sendMessage(String json);
-    void regAsListener(LoRaWanListener l);
 }

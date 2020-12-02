@@ -13,7 +13,7 @@ public class ConfigModel {
 
     @SerializedName("temperatureSetpoint")
     @Expose
-    public int temperatureSetpoint;
+    public int tempSetpoint;
 
     @SerializedName("ppmMin")
     @Expose
@@ -26,4 +26,6 @@ public class ConfigModel {
     @SerializedName("deviceEUI")
     @Expose
     public String eui;
+
+    public ConfigModel(){}
 }

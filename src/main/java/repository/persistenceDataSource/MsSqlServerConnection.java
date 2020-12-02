@@ -1,9 +1,11 @@
 package repository.persistenceDataSource;
 
 import models.ConfigModel;
-import services.DatabaseListener;
 import util.ApplicationProperties;
+import util.EventTypes;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -11,23 +13,18 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class MsSqlServerConnection implements Database {
-    private DatabaseListener listener = null;
     private final ApplicationProperties properties;
+    private final PropertyChangeSupport support;
     private final Logger logger;
     private Connection connection;
+    private boolean configsRequested;
 
 
     public MsSqlServerConnection(ApplicationProperties applicationProperties){
         properties = applicationProperties;
+        support = new PropertyChangeSupport(this);
         logger = Logger.getLogger(this.getClass().getName());
-    }
-
-
-    @Override
-    public void regAsListener(DatabaseListener l) {
-        if (listener == null){
-            listener = l;
-        }
+        configsRequested = false;
     }
 
 
@@ -43,7 +40,7 @@ public class MsSqlServerConnection implements Database {
     }
 
 
-    public boolean isConnected() throws SQLException{
+    private boolean isConnected() throws SQLException{
         return !connection.isClosed();
     }
 
@@ -57,6 +54,7 @@ public class MsSqlServerConnection implements Database {
                 Statement statement = connection.createStatement();
                 statement.executeUpdate(query);
                 System.out.println("Inserted into database at " + LocalDateTime.now());
+                statement.close();
                 connection.close();
             }
         } catch (SQLException throwables) {
@@ -69,7 +67,9 @@ public class MsSqlServerConnection implements Database {
     public void run() {
         while (true){
             try {
-                Thread.sleep(properties.getDbCheckFreqMS());
+                if(configsRequested){
+                    Thread.sleep(properties.getDbCheckFreqMS());
+                }
                 connect();
 
                 if(isConnected()){
@@ -90,7 +90,7 @@ public class MsSqlServerConnection implements Database {
 
                         config.id = rs.getInt("settingsId");
                         config.eui = rs.getString("deviceEUI");
-                        config.temperatureSetpoint = rs.getInt("temperatureSetpoint");
+                        config.tempSetpoint = rs.getInt("temperatureSetpoint");
                         config.co2Min = rs.getInt("ppmMin");
                         config.co2Max = rs.getInt("ppmMax");
 
@@ -99,13 +99,14 @@ public class MsSqlServerConnection implements Database {
 
 
                     if(configUpdates.size() > 0){
-                        logger.log(Level.INFO, "Configurations updated amount: " + configUpdates.size());
-                        for (ConfigModel c : configUpdates) {
-                            listener.configurationReceivedEvent(c);
-                            updateDbConfigSent(c);
+                        for (ConfigModel configuration : configUpdates) {
+                            support.firePropertyChange(EventTypes.NEW_CONFIGURATION_AVAILABLE.toString(), "", configuration);
+                            updateDbConfigTimeStamp(configuration);
                         }
+                        logger.log(Level.INFO, "Configurations updated amount: " + configUpdates.size());
                     }
 
+                    configsRequested = true;
                     statement.close();
                     rs.close();
                     connection.close();
@@ -117,7 +118,7 @@ public class MsSqlServerConnection implements Database {
     }
 
 
-    private void updateDbConfigSent(ConfigModel sentConfig) throws SQLException {
+    private void updateDbConfigTimeStamp(ConfigModel sentConfig) throws SQLException {
         String query = String.format("UPDATE %s " +
                 "SET sentToDevice =  GETDATE()" +
                 "WHERE settingsId = %s;", properties.getDbTableNameConfig(), sentConfig.id);
@@ -125,6 +126,15 @@ public class MsSqlServerConnection implements Database {
         Statement statement = connection.createStatement();
         statement.executeUpdate(query);
         statement.close();
+    }
+
+    @Override
+    public void addPropertyChangeListener(String name, PropertyChangeListener listener) {
+        if (name == null){
+            support.addPropertyChangeListener(listener);
+        } else {
+            support.addPropertyChangeListener(name, listener);
+        }
     }
 
 

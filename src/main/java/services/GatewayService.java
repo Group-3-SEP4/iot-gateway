@@ -7,10 +7,13 @@ import org.json.JSONObject;
 import repository.persistenceDataSource.Database;
 import repository.remoteDataSource.LoRaWan;
 import util.Convert;
+import util.EventTypes;
+
+import java.beans.PropertyChangeEvent;
 import java.sql.Timestamp;
 
 
-public class GatewayService implements LoRaWanListener, DatabaseListener{
+public class GatewayService {
 
 	private final Database db;
 	private final LoRaWan lrw;
@@ -19,17 +22,18 @@ public class GatewayService implements LoRaWanListener, DatabaseListener{
 	public GatewayService(Database database, LoRaWan loRaWan) {
 		db = database;
 		lrw = loRaWan;
-		regAsListener();
+		registerAsObserver();
 	}
 
 
-	private void regAsListener(){
-		db.regAsListener(this);
-		lrw.regAsListener(this);
+	private void registerAsObserver(){
+		db.addPropertyChangeListener(EventTypes.NEW_CONFIGURATION_AVAILABLE.toString(), this::configurationReceivedEvent);
+		lrw.addPropertyChangeListener(EventTypes.NEW_LORA_DATA_RECEIVED.toString(), this::dataReceivedEvent);
 	}
 
 
-	public void dataReceivedEvent(String json){
+	private void dataReceivedEvent(PropertyChangeEvent event){
+		String json = (String) event.getNewValue();
 		var model = Convert.convertJsonToObject(json, TeracomModel.class);
 		if (model != null) {
 
@@ -64,9 +68,9 @@ public class GatewayService implements LoRaWanListener, DatabaseListener{
 	}
 
 
-	@Override
-	public void configurationReceivedEvent(ConfigModel config) {
-		String data = Integer.toHexString(config.temperatureSetpoint) +
+	private void configurationReceivedEvent(PropertyChangeEvent event) {
+		ConfigModel config = (ConfigModel) event.getNewValue();
+		String data = Integer.toHexString(config.tempSetpoint) +
 				Integer.toHexString(config.co2Min) +
 				Integer.toHexString(config.co2Max);
 

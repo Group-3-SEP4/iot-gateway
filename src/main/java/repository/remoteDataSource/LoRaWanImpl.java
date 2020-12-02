@@ -1,7 +1,10 @@
 package repository.remoteDataSource;
 
-import services.LoRaWanListener;
 import util.ApplicationProperties;
+import util.EventTypes;
+
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
@@ -10,17 +13,18 @@ import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class LoRaWanImpl implements WebSocket.Listener, LoRaWan {
+public class LoRaWanImpl implements LoRaWan {
 
 	private final ScheduledExecutorService executorService;
+	private final PropertyChangeSupport support;
 	private final Logger logger;
 	private final String url;
 	private WebSocket server;
-	private LoRaWanListener listener = null;
-	private String text = "";
+	private String data = "";
 
 	public LoRaWanImpl(ApplicationProperties applicationProperties) {
 		executorService = Executors.newScheduledThreadPool(1);
+		support = new PropertyChangeSupport(this);
 		logger = Logger.getLogger(this.getClass().getName());
 		url = applicationProperties.getLoraUrl() + applicationProperties.getLoraToken();
 		connect();
@@ -47,13 +51,6 @@ public class LoRaWanImpl implements WebSocket.Listener, LoRaWan {
 	@Override
 	public void sendMessage(String json) {
 		server.sendText(json,true);
-	}
-
-	@Override
-	public void regAsListener(LoRaWanListener l) {
-		if (listener == null){
-			listener = l;
-		}
 	}
 
 
@@ -119,10 +116,10 @@ public class LoRaWanImpl implements WebSocket.Listener, LoRaWan {
 		logger.log(Level.INFO, "onText(Last:" + last + "): " + message);
 		// As sequence received can be send on multiple occasions, method collects until boolean last is true, then proceeds with the data.
 
-		text += data.toString();
+		this.data += data.toString();
 		if (last) {
-			listener.dataReceivedEvent(text);
-			text = "";
+			support.firePropertyChange(EventTypes.NEW_LORA_DATA_RECEIVED.toString(), "", this.data);
+			this.data = "";
 		}
 		webSocket.request(1);
 
@@ -130,4 +127,12 @@ public class LoRaWanImpl implements WebSocket.Listener, LoRaWan {
 //		return CompletableFuture.completedFuture("onText() completed.").thenAccept(System.out::println);
 	}
 
+	@Override
+	public void addPropertyChangeListener(String name, PropertyChangeListener listener) {
+		if (name == null){
+			support.addPropertyChangeListener(listener);
+		} else {
+			support.addPropertyChangeListener(name, listener);
+		}
+	}
 }

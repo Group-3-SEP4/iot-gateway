@@ -1,13 +1,11 @@
 package repository.persistenceDataSource;
 
-import services.DatabaseListener;
+import util.PropertyChangeSubject;
 
-import java.sql.SQLException;
 import java.sql.Timestamp;
 
-public interface Database extends Runnable{
+public interface Database extends Runnable, PropertyChangeSubject {
 
     void insert(String deviceId, int hum, int temp, int co2, int servo, Timestamp time);
-    void regAsListener(DatabaseListener l);
 
 }
