@@ -1,17 +1,19 @@
 package mock;
 
-import repository.remoteDataSource.WebSocketListenerInterface;
+import repository.remoteDataSource.LoRaWan;
+import services.LoRaWanListener;
+
 
 import java.net.http.WebSocket;
 import java.util.ArrayDeque;
 
-public class WebSocketListenerMockup implements WebSocket.Listener, Runnable, WebSocketListenerInterface {
+public class LoraWanMockup implements WebSocket.Listener, Runnable, LoRaWan {
 
     private final ArrayDeque<String> queue;
     private final static long DELAY_MIN = 5000L; //24000L
 
 
-    public WebSocketListenerMockup(String url) {
+    public LoraWanMockup(String url) {
         queue = new ArrayDeque<>();
         Thread t = new Thread(this::run);
         t.start();
@@ -33,9 +35,15 @@ public class WebSocketListenerMockup implements WebSocket.Listener, Runnable, We
         }
     }
 
+
     @Override
-    public String getMessage() {
-        return queue.poll();
+    public void sendMessage(String json) {
+
+    }
+
+    @Override
+    public void regAsListener(LoRaWanListener l) {
+
     }
 
     private String getSingleResponse() {

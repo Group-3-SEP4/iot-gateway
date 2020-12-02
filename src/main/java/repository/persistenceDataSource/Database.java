@@ -1,12 +1,13 @@
 package repository.persistenceDataSource;
 
+import services.DatabaseListener;
+
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
-public interface Database {
+public interface Database extends Runnable{
 
-    void connect(String db_connect_string, String db_userid, String db_password) throws SQLException;
-    boolean isConnected() throws SQLException;
-    void insert(String deviceId, int hum, int temp, int co2, int servo, Timestamp time) throws SQLException;
-    void read();
+    void insert(String deviceId, int hum, int temp, int co2, int servo, Timestamp time);
+    void regAsListener(DatabaseListener l);
+
 }

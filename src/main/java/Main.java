@@ -1,44 +1,24 @@
 
 
-import repository.remoteDataSource.LoraWanListenerImpl;
+import repository.persistenceDataSource.Database;
+import repository.persistenceDataSource.MsSqlServerConnection;
+import repository.remoteDataSource.LoRaWan;
+import repository.remoteDataSource.LoRaWanImpl;
+import services.GatewayService;
 import util.ApplicationProperties;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.logging.Handler;
-import java.util.logging.Level;
-import java.util.logging.LogManager;
-import java.util.logging.Logger;
-
 
 public class Main {
 
-
-    private static ApplicationProperties properties = ApplicationProperties.getInstance();
-    private static ExecutorService executorService;
-
     public static void main(String[] args) {
+        ApplicationProperties p = new ApplicationProperties();
 
+        Database db = new MsSqlServerConnection(p);
+        Thread dbThread = new Thread(db);
+        dbThread.start();
 
-
-        String url = properties.getLoraUrl() + properties.getLoraToken();
-        executorService = new ScheduledThreadPoolExecutor(4);
-        LoraWanListenerImpl lw = new LoraWanListenerImpl(url);
-        executorService.submit(lw);
-
-
-        while(true) {
-            try {
-                Thread.sleep(1000);
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-
+        LoRaWan lrw = new LoRaWanImpl(p);
+        new GatewayService(db, lrw);
 
     }
-
-
 
 }
