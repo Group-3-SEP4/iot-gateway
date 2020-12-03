@@ -6,13 +6,22 @@ import java.util.Properties;
 public class ApplicationProperties {
 
     private final Properties properties;
-    public ApplicationProperties() {
+    private static ApplicationProperties INSTANCE;
+
+    private ApplicationProperties() {
         properties = new Properties();
         try {
             properties.load(getClass().getResourceAsStream("/conf/application.properties"));
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static ApplicationProperties getInstance(){
+        if(INSTANCE == null){
+            INSTANCE = new ApplicationProperties();
+        }
+        return INSTANCE;
     }
 
     public String getDbUser() {

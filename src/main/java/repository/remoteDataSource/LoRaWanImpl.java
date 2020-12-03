@@ -22,11 +22,11 @@ public class LoRaWanImpl implements LoRaWan {
 	private WebSocket server;
 	private String data = "";
 
-	public LoRaWanImpl(ApplicationProperties applicationProperties) {
+	public LoRaWanImpl() {
 		executorService = Executors.newScheduledThreadPool(1);
 		support = new PropertyChangeSupport(this);
 		logger = Logger.getLogger(this.getClass().getName());
-		url = applicationProperties.getLoraUrl() + applicationProperties.getLoraToken();
+		url = ApplicationProperties.getInstance().getLoraUrl() + ApplicationProperties.getInstance().getLoraToken();
 		connect();
 
 		//TODO: Should be seperate method in another class, where it asks for the cache on demand.

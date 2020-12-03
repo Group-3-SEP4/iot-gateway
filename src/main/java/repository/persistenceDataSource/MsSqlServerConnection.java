@@ -23,9 +23,9 @@ public class MsSqlServerConnection implements Database {
     private Connection connection;
 
 
-    public MsSqlServerConnection(ApplicationProperties applicationProperties){
+    public MsSqlServerConnection(){
         executorService = Executors.newScheduledThreadPool(1);
-        properties = applicationProperties;
+        properties = ApplicationProperties.getInstance();
         support = new PropertyChangeSupport(this);
         logger = Logger.getLogger(this.getClass().getName());
         checkDbConfigurations();

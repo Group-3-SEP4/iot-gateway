@@ -10,9 +10,8 @@ import util.ApplicationProperties;
 public class Main {
 
     public static void main(String[] args) {
-        ApplicationProperties p = new ApplicationProperties();
-        LoRaWan lrw = new LoRaWanImpl(p);
-        Database db = new MsSqlServerConnection(p);
+        LoRaWan lrw = new LoRaWanImpl();
+        Database db = new MsSqlServerConnection();
         new GatewayService(db, lrw);
     }
 
