@@ -22,11 +22,11 @@ public class GatewayService {
 	public GatewayService(Database database, LoRaWan loRaWan) {
 		db = database;
 		lrw = loRaWan;
-		registerAsObserver();
+		registerAsListener();
 	}
 
 
-	private void registerAsObserver(){
+	private void registerAsListener(){
 		db.addPropertyChangeListener(EventTypes.NEW_CONFIGURATION_AVAILABLE.toString(), this::configurationReceivedEvent);
 		lrw.addPropertyChangeListener(EventTypes.NEW_LORA_DATA_RECEIVED.toString(), this::dataReceivedEvent);
 	}
