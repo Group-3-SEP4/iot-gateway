@@ -75,7 +75,7 @@ public class MsSqlServerConnection implements Database {
                             String query = String.format("SELECT r.deviceEUI, s.settingsId, s.temperatureSetpoint, s.ppmMin, s.ppmMax " +
                                     "FROM %s s " +
                                     "JOIN %s r ON s.settingsId = s.settingsId " +
-                                    "WHERE s.sentToDevice is NULL;", properties.getDbTableNameConfig(), properties.getDbTableNameRoom());
+                                    "WHERE s.sentToDevice is NULL OR s.sentToDevice < s.lastUpdated;", properties.getDbTableNameConfig(), properties.getDbTableNameRoom());
 
                             Statement statement = connection.createStatement();
 
