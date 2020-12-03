@@ -9,22 +9,26 @@ import java.beans.PropertyChangeSupport;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class MsSqlServerConnection implements Database {
+    private final ScheduledExecutorService executorService;
     private final ApplicationProperties properties;
     private final PropertyChangeSupport support;
     private final Logger logger;
     private Connection connection;
-    private boolean configsRequested;
 
 
     public MsSqlServerConnection(ApplicationProperties applicationProperties){
+        executorService = Executors.newScheduledThreadPool(1);
         properties = applicationProperties;
         support = new PropertyChangeSupport(this);
         logger = Logger.getLogger(this.getClass().getName());
-        configsRequested = false;
+        checkDbConfigurations();
     }
 
 
@@ -62,59 +66,56 @@ public class MsSqlServerConnection implements Database {
         }
     }
 
+    private void checkDbConfigurations(){
+        executorService.scheduleAtFixedRate(() -> {
+                    try {
+                        connect();
 
-    @Override
-    public void run() {
-        while (true){
-            try {
-                if(configsRequested){
-                    Thread.sleep(properties.getDbCheckFreqMS());
-                }
-                connect();
+                        if(isConnected()){
+                            String query = String.format("SELECT r.deviceEUI, s.settingsId, s.temperatureSetpoint, s.ppmMin, s.ppmMax " +
+                                    "FROM %s s " +
+                                    "JOIN %s r ON s.settingsId = s.settingsId " +
+                                    "WHERE s.sentToDevice is NULL;", properties.getDbTableNameConfig(), properties.getDbTableNameRoom());
 
-                if(isConnected()){
-                    String query = String.format("SELECT r.deviceEUI, s.settingsId, s.temperatureSetpoint, s.ppmMin, s.ppmMax " +
-                            "FROM %s s " +
-                            "JOIN %s r ON s.settingsId = s.settingsId " +
-                            "WHERE s.sentToDevice is NULL;", properties.getDbTableNameConfig(), properties.getDbTableNameRoom());
+                            Statement statement = connection.createStatement();
 
-                    Statement statement = connection.createStatement();
+                            ResultSet rs = statement.executeQuery(query);
+                            connection.commit();
 
-                    ResultSet rs = statement.executeQuery(query);
-                    connection.commit();
+                            ArrayList<ConfigModel> configUpdates = new ArrayList<>();
 
-                    ArrayList<ConfigModel> configUpdates = new ArrayList<>();
+                            while(rs.next()) {
+                                ConfigModel config = new ConfigModel();
 
-                    while(rs.next()) {
-                        ConfigModel config = new ConfigModel();
+                                config.id = rs.getInt("settingsId");
+                                config.eui = rs.getString("deviceEUI");
+                                config.tempSetpoint = rs.getInt("temperatureSetpoint");
+                                config.co2Min = rs.getInt("ppmMin");
+                                config.co2Max = rs.getInt("ppmMax");
 
-                        config.id = rs.getInt("settingsId");
-                        config.eui = rs.getString("deviceEUI");
-                        config.tempSetpoint = rs.getInt("temperatureSetpoint");
-                        config.co2Min = rs.getInt("ppmMin");
-                        config.co2Max = rs.getInt("ppmMax");
-
-                        configUpdates.add(config);
-                    }
+                                configUpdates.add(config);
+                            }
 
 
-                    if(configUpdates.size() > 0){
-                        for (ConfigModel configuration : configUpdates) {
-                            support.firePropertyChange(EventTypes.NEW_CONFIGURATION_AVAILABLE.toString(), "", configuration);
-                            updateDbConfigTimeStamp(configuration);
+                            if(configUpdates.size() > 0){
+                                for (ConfigModel configuration : configUpdates) {
+                                    support.firePropertyChange(EventTypes.NEW_CONFIGURATION_AVAILABLE.toString(), "", configuration);
+                                    updateDbConfigTimeStamp(configuration);
+                                }
+                                logger.log(Level.INFO, "Configurations updated amount: " + configUpdates.size());
+                            } else {
+                                logger.log(Level.INFO, "Database checked for new configurations: No updates found.");
+                            }
+
+                            statement.close();
+                            rs.close();
+                            connection.close();
                         }
-                        logger.log(Level.INFO, "Configurations updated amount: " + configUpdates.size());
+                    } catch (SQLException e) {
+                        e.printStackTrace();
                     }
-
-                    configsRequested = true;
-                    statement.close();
-                    rs.close();
-                    connection.close();
-                }
-            } catch (InterruptedException | SQLException e) {
-                e.printStackTrace();
-            }
-        }
+                },
+                0, properties.getDbCheckMinutes(), TimeUnit.MINUTES);
     }
 
 

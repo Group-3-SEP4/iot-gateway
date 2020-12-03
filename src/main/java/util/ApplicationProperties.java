@@ -36,7 +36,7 @@ public class ApplicationProperties {
     public String getDbTableNameRoom() {
         return properties.getProperty("db.tableNameRoom");
     }
-    public int getDbCheckFreqMS() {return Integer.parseInt(properties.getProperty("db.checkFreqMs"));}
+    public int getDbCheckMinutes() {return Integer.parseInt(properties.getProperty("db.checkMinutes"));}
 
     public String getLoraToken() {
         return properties.getProperty("lora.token");

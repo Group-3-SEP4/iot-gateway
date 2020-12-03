@@ -11,14 +11,9 @@ public class Main {
 
     public static void main(String[] args) {
         ApplicationProperties p = new ApplicationProperties();
-
-        Database db = new MsSqlServerConnection(p);
-        Thread dbThread = new Thread(db);
-        dbThread.start();
-
         LoRaWan lrw = new LoRaWanImpl(p);
+        Database db = new MsSqlServerConnection(p);
         new GatewayService(db, lrw);
-
     }
 
 }

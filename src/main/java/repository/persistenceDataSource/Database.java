@@ -4,7 +4,7 @@ import util.PropertyChangeSubject;
 
 import java.sql.Timestamp;
 
-public interface Database extends Runnable, PropertyChangeSubject {
+public interface Database extends PropertyChangeSubject {
 
     void insert(String deviceId, int hum, int temp, int co2, int servo, Timestamp time);
 
