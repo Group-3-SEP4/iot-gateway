@@ -80,7 +80,6 @@ public class MsSqlServerConnection implements Database {
                             Statement statement = connection.createStatement();
 
                             ResultSet rs = statement.executeQuery(query);
-                            connection.commit();
 
                             ArrayList<ConfigModel> configUpdates = new ArrayList<>();
 
@@ -95,7 +94,6 @@ public class MsSqlServerConnection implements Database {
 
                                 configUpdates.add(config);
                             }
-
 
                             if(configUpdates.size() > 0){
                                 for (ConfigModel configuration : configUpdates) {

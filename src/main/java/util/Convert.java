@@ -15,6 +15,7 @@ public class Convert {
 
 
     public static int convertHexByteToInt(char... hex) {
+        // TODO: kan radix 8 gøre det
         return Integer.parseInt("" + hex[0] + hex[1] + hex[2] + hex[3], 16);
     }
 
