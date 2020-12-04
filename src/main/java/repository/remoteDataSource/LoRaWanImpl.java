@@ -1,31 +1,33 @@
 package repository.remoteDataSource;
 
-import com.google.gson.Gson;
-import models.TeracomModel;
-import org.json.JSONObject;
+import util.ApplicationProperties;
+import util.EventTypes;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.WebSocket;
 import java.nio.ByteBuffer;
-import java.util.ArrayDeque;
 import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-// TODO: change naming of the websocketlistener interface to something like RemoteDataSource, so in theory it can be changed to RMI or other remote datasource
-public class WebSocketListener implements WebSocket.Listener, WebSocketListenerInterface {
+public class LoRaWanImpl implements LoRaWan {
 
-	private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+	private final ScheduledExecutorService executorService;
+	private final PropertyChangeSupport support;
+	private final Logger logger;
 	private final String url;
-	private final ArrayDeque<String> queue;
 	private WebSocket server;
-	Logger logger = Logger.getLogger(this.getClass().getName());
+	private String data = "";
 
-	public WebSocketListener(String url) {
-		queue = new ArrayDeque<>();
-		this.url = url;
-		connect(url);
+	public LoRaWanImpl() {
+		executorService = Executors.newScheduledThreadPool(1);
+		support = new PropertyChangeSupport(this);
+		logger = Logger.getLogger(this.getClass().getName());
+		url = ApplicationProperties.getInstance().getLoraUrl() + ApplicationProperties.getInstance().getLoraToken();
+		connect();
 
 		//TODO: Should be seperate method in another class, where it asks for the cache on demand.
 //		JSONObject jsonObject = new JSONObject();
@@ -33,25 +35,27 @@ public class WebSocketListener implements WebSocket.Listener, WebSocketListenerI
 //		jsonObject.put("page", "1");
 //		jsonObject.put("perPage", "1");
 //		server.sendText(jsonObject.toString(), true);
-
-
 	}
 
-	private void connect(String url) {
+
+	private void connect() {
 		HttpClient client = HttpClient.newHttpClient();
 		CompletableFuture<WebSocket> ws = client.newWebSocketBuilder()
 				.buildAsync(URI.create(url), this);
 		server = ws.join();
 	}
 
+
 	// Send down-link message to device
 	// Must be in Json format according to https://github.com/ihavn/IoT_Semester_project/blob/master/LORA_NETWORK_SERVER.md
-	public void sendMessage(String jsonString) {
-		server.sendText(jsonString,true);
+	@Override
+	public void sendMessage(String json) {
+		server.sendText(json,true);
 	}
 
 
 	//onOpen()
+	@Override
 	public void onOpen(WebSocket webSocket) {
 		// This WebSocket will invoke onText, onBinary, onPing, onPong or onClose methods on the associated listener (i.e. receive methods) up to n more times
 		webSocket.request(1);
@@ -80,9 +84,10 @@ public class WebSocketListener implements WebSocket.Listener, WebSocketListenerI
 	public CompletionStage<?> onClose(WebSocket webSocket, int statusCode, String reason) {
 		logger.log(Level.INFO, "WebSocket closed!" + ", Status:" + statusCode + ", Reason: " + reason);
 		//reconnect
-		connect(url);
+		connect();
 		return CompletableFuture.completedFuture("onClose() completed.").thenAccept(System.out::println);
 	}
+
 
 	//onPing()
 	@Override
@@ -93,6 +98,7 @@ public class WebSocketListener implements WebSocket.Listener, WebSocketListenerI
 //		return CompletableFuture.completedFuture("Ping completed.").thenAccept(System.out::println);
 	}
 
+
 	//onPong()
 	@Override
 	public CompletionStage<?> onPong(WebSocket webSocket, ByteBuffer message) {
@@ -102,7 +108,6 @@ public class WebSocketListener implements WebSocket.Listener, WebSocketListenerI
 //		return CompletableFuture.completedFuture("Pong completed.").thenAccept(System.out::println);
 	}
 
-	private String text = "";
 
 	//onText()
 	@Override
@@ -111,26 +116,23 @@ public class WebSocketListener implements WebSocket.Listener, WebSocketListenerI
 		logger.log(Level.INFO, "onText(Last:" + last + "): " + message);
 		// As sequence received can be send on multiple occasions, method collects until boolean last is true, then proceeds with the data.
 
-		text += data.toString();
+		this.data += data.toString();
 		if (last) {
-			processCompleteTextMessage(text);
-			text = "";
+			support.firePropertyChange(EventTypes.NEW_LORA_DATA_RECEIVED.toString(), "", this.data);
+			this.data = "";
 		}
 		webSocket.request(1);
 
 		return CompletableFuture.completedFuture("onText() completed.");
 //		return CompletableFuture.completedFuture("onText() completed.").thenAccept(System.out::println);
-
-
-	}
-
-	private void processCompleteTextMessage(String receivedText) {
-		queue.add(receivedText);
 	}
 
 	@Override
-	public String getMessage() {
-		return queue.poll();
+	public void addPropertyChangeListener(String name, PropertyChangeListener listener) {
+		if (name == null){
+			support.addPropertyChangeListener(listener);
+		} else {
+			support.addPropertyChangeListener(name, listener);
+		}
 	}
-
 }
