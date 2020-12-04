@@ -4,7 +4,10 @@ db.driver=com.microsoft.sqlserver.jdbc.SQLServerDriver
 db.url=jdbc:sqlserver://xxxxxxxxxx.database.windows.net:1433;database=EnviormentDatabase;
 db.user=xxxxxxxxx
 db.password=xxxxxxxx
-db.tableName=Measurement
+db.checkFreqMs = 60000
+db.tableNameMeasurement=Measurement
+db.tableNameConfig=Settings
+db.tableNameRoom=Room
 
 
 lora.url=xxxxxxxx
