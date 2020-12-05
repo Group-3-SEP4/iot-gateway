@@ -73,26 +73,15 @@ public class GatewayService {
 	private void configurationReceivedEvent(PropertyChangeEvent event) {
 		ConfigModel config = (ConfigModel) event.getNewValue();
 
-		byte[] data = new byte[6];
-
-		data[0] = (byte) ((config.tempSetpoint >> 8) & 0xFF);
-		data[1] = (byte) (config.tempSetpoint & 0xFF);
-		data[2] = (byte) ((config.co2Min >> 8) & 0xFF);
-		data[3] = (byte) (config.co2Min & 0xFF);
-		data[4] = (byte) ((config.co2Max >> 8) & 0xFF);
-		data[5] = (byte) (config.co2Max & 0xFF);
-
-		StringBuilder hex = new StringBuilder();
-
-		for (byte b : data){
-			hex.append(String.format("%02X", b));
-		}
+		String hex = String.format("%04X", config.tempSetpoint) +
+				String.format("%04X", config.co2Min) +
+				String.format("%04X", config.co2Max);
 
 		JSONObject jsonObject = new JSONObject();
 		jsonObject.put("cmd", "tx");
 		jsonObject.put("EUI", config.eui);
 		jsonObject.put("port", 2);
-		jsonObject.put("data", hex.toString());
+		jsonObject.put("data", hex);
 
 		lrw.sendMessage(jsonObject.toString());
 	}
