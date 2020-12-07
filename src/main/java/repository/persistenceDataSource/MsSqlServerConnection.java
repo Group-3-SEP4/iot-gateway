@@ -50,11 +50,11 @@ public class MsSqlServerConnection implements Database {
 
 
     @Override
-    public void insert(String deviceId, int hum, int temp, int co2, int servo, Timestamp time) {
+    public void insert(String deviceEUI, int hum, int temp, int co2, int servo, Timestamp time) {
         connect();
         try {
             if(isConnected()){
-                String query = String.format("INSERT INTO %s (timestamp, humidityPercentage, carbonDioxide, temperature, servoPositionPercentage, deviceId) VALUES ('%s', %d, %d, %d, %d, '%s')", properties.getDbTableNameMeasurement(), time, hum, co2, temp, servo, deviceId);
+                String query = String.format("INSERT INTO %s (timestamp, humidityPercentage, carbonDioxide, temperature, servoPositionPercentage, deviceEUI) VALUES ('%s', %d, %d, %d, %d, '%s')", properties.getDbTableNameMeasurement(), time, hum, co2, temp, servo, deviceEUI);
                 Statement statement = connection.createStatement();
                 statement.executeUpdate(query);
                 System.out.println("Inserted into database at " + LocalDateTime.now());
@@ -119,7 +119,7 @@ public class MsSqlServerConnection implements Database {
 
     private void updateDbConfigTimeStamp(ConfigModel sentConfig) throws SQLException {
         String query = String.format("UPDATE %s " +
-                "SET sentToDevice =  GETDATE()" +
+                "SET sentToDevice = GETDATE()" +
                 "WHERE settingsId = %s;", properties.getDbTableNameConfig(), sentConfig.id);
 
         Statement statement = connection.createStatement();
