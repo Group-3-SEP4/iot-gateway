@@ -10,9 +10,8 @@ import util.Convert;
 import util.EventTypes;
 
 import java.beans.PropertyChangeEvent;
-import java.math.BigInteger;
 import java.sql.Timestamp;
-import java.util.Arrays;
+import java.time.Instant;
 
 
 public class GatewayService {
@@ -42,12 +41,12 @@ public class GatewayService {
 			switch (model.cmd) {
 				case "cq":
 					for(TeracomModel m : model.cache) {
-						Timestamp time = new Timestamp(Long.parseLong(m.ts));
+						Timestamp time = Timestamp.from(Instant.parse(m.time));
 						storeResult(m.eUI, m.data, time);
 					}
 					break;
 				case "rx":
-					Timestamp time = new Timestamp(Long.parseLong(model.ts));
+					Timestamp time = Timestamp.from(Instant.parse(model.time));
 					storeResult(model.eUI, model.data, time);
 					break;
 			}

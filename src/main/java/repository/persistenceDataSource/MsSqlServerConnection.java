@@ -119,7 +119,7 @@ public class MsSqlServerConnection implements Database {
 
     private void updateDbConfigTimeStamp(ConfigModel sentConfig) throws SQLException {
         String query = String.format("UPDATE %s " +
-                "SET sentToDevice = DATEADD(hour, 1, GETDATE())" +
+                "SET sentToDevice = GETDATE()" +
                 "WHERE settingsId = %s;", properties.getDbTableNameConfig(), sentConfig.id);
 
         Statement statement = connection.createStatement();
