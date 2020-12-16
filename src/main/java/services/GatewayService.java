@@ -41,18 +41,28 @@ public class GatewayService {
 			switch (model.cmd) {
 				case "cq":
 					for(TeracomModel m : model.cache) {
-						Timestamp time = Timestamp.from(Instant.parse(m.time));
-						storeResult(m.eUI, m.data, time);
+						storeResult(m.eUI, m.data, CETtoUTC(m.ts));
 					}
 					break;
 				case "rx":
-					Timestamp time = Timestamp.from(Instant.parse(model.time));
-					storeResult(model.eUI, model.data, time);
+					storeResult(model.eUI, model.data, CETtoUTC(model.ts));
 					break;
 			}
 		}
 	}
 
+	private Timestamp CETtoUTC(String ts) {
+		// NOTE: This method is supposed to convert the CET timestamp we get from teracom
+		// into a UTC time for consistency in the database.
+		// For now this will just subtract an hour and be accurate for approx. half of the year.
+		// In order to do this the correct way, we would need a major refactor
+		// away from using java.sql.Timestamp and use classes from the more modern
+		// and consistent java.time library.
+		// This refactor potentially adds too much development time as we
+		// are at the end of the project period at the time of writing this.
+		// - Aron
+		return new Timestamp(Long.parseLong(ts) - 3600000L );
+	}
 
 	private void storeResult(String deviceId, String hexString, Timestamp timestamp) {
 		char[] hex = hexString.toCharArray();
