@@ -12,6 +12,8 @@ import util.EventTypes;
 import java.beans.PropertyChangeEvent;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 
 public class GatewayService {
@@ -52,16 +54,9 @@ public class GatewayService {
 	}
 
 	private Timestamp CETtoUTC(String ts) {
-		// NOTE: This method is supposed to convert the CET timestamp we get from teracom
-		// into a UTC time for consistency in the database.
-		// For now this will just subtract an hour and be accurate for approx. half of the year.
-		// In order to do this the correct way, we would need a major refactor
-		// away from using java.sql.Timestamp and use classes from the more modern
-		// and consistent java.time library.
-		// This refactor potentially adds too much development time as we
-		// are at the end of the project period at the time of writing this.
-		// - Aron
-		return new Timestamp(Long.parseLong(ts) - 3600000L );
+		var instant = Instant.ofEpochMilli(Long.parseLong(ts));
+		var z1dt = ZonedDateTime.ofInstant(instant, ZoneId.of("UTC"));
+		return Timestamp.valueOf(z1dt.toLocalDateTime());
 	}
 
 	private void storeResult(String deviceId, String hexString, Timestamp timestamp) {

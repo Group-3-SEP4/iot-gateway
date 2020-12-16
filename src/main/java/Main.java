@@ -1,11 +1,8 @@
-
-
 import repository.persistenceDataSource.Database;
 import repository.persistenceDataSource.MsSqlServerConnection;
 import repository.remoteDataSource.LoRaWan;
 import repository.remoteDataSource.LoRaWanImpl;
 import services.GatewayService;
-import util.ApplicationProperties;
 
 public class Main {
 
