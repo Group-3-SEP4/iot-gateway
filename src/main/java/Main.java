@@ -11,5 +11,4 @@ public class Main {
         Database db = new MsSqlServerConnection();
         new GatewayService(db, lrw);
     }
-
 }

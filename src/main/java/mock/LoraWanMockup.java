@@ -12,20 +12,17 @@ public class LoraWanMockup implements WebSocket.Listener, Runnable, LoRaWan {
     private final ArrayDeque<String> queue;
     private final static long DELAY_MIN = 5000L; //24000L
 
-
     public LoraWanMockup(String url) {
         queue = new ArrayDeque<>();
         Thread t = new Thread(this::run);
         t.start();
     }
 
-
-
     @Override
     public void run() {
         System.out.println("WebSocket Listener has been opened for requests.");
         queue.add(getCacheResponse());
-        while(true) {
+        while (true) {
             try {
                 queue.add(getSingleResponse());
                 Thread.sleep(DELAY_MIN);
@@ -34,7 +31,6 @@ public class LoraWanMockup implements WebSocket.Listener, Runnable, LoRaWan {
             }
         }
     }
-
 
     @Override
     public void sendMessage(String json) {

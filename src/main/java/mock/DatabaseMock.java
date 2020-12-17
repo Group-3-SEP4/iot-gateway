@@ -19,6 +19,6 @@ public class DatabaseMock implements Database {
 
     @Override
     public void addPropertyChangeListener(String name, PropertyChangeListener listener) {
-        // void
+        
     }
 }

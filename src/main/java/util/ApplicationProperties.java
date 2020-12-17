@@ -17,8 +17,8 @@ public class ApplicationProperties {
         }
     }
 
-    public static ApplicationProperties getInstance(){
-        if(INSTANCE == null){
+    public static ApplicationProperties getInstance() {
+        if (INSTANCE == null) {
             INSTANCE = new ApplicationProperties();
         }
         return INSTANCE;
@@ -27,37 +27,40 @@ public class ApplicationProperties {
     public String getDbUser() {
         return properties.getProperty("db.user");
     }
+
     public String getDbPassword() {
         return properties.getProperty("db.password");
     }
+
     public String getDbDriver() {
         return properties.getProperty("db.driver");
     }
+
     public String getDbUrl() {
         return properties.getProperty("db.url");
     }
+
     public String getDbTableNameMeasurement() {
         return properties.getProperty("db.tableNameMeasurement");
     }
+
     public String getDbTableNameConfig() {
         return properties.getProperty("db.tableNameConfig");
     }
+
     public String getDbTableNameRoom() {
         return properties.getProperty("db.tableNameRoom");
     }
-    public int getDbCheckMinutes() {return Integer.parseInt(properties.getProperty("db.checkMinutes"));}
+
+    public int getDbCheckMinutes() {
+        return Integer.parseInt(properties.getProperty("db.checkMinutes"));
+    }
 
     public String getLoraToken() {
         return properties.getProperty("lora.token");
     }
-    public String getLoraUrl() { return properties.getProperty("lora.url");
+
+    public String getLoraUrl() {
+        return properties.getProperty("lora.url");
     }
-
-
-
 }
-
-
-
-
-

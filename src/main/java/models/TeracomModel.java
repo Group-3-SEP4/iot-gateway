@@ -3,7 +3,6 @@ package models;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-
 public class TeracomModel {
 
     @SerializedName("total")
@@ -81,7 +80,6 @@ public class TeracomModel {
     @SerializedName("sessionKeyId")
     @Expose
     public Object sessionKeyId;
-
 
     public TeracomModel() {
     }

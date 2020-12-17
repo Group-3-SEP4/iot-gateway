@@ -3,8 +3,6 @@ package models;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-
-
 public class ConfigModel {
 
     @SerializedName("settingId")
@@ -27,5 +25,6 @@ public class ConfigModel {
     @Expose
     public String eui;
 
-    public ConfigModel(){}
+    public ConfigModel() {
+    }
 }

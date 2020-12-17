@@ -22,8 +22,7 @@ public class MsSqlServerConnection implements Database {
     private final Logger logger;
     private Connection connection;
 
-
-    public MsSqlServerConnection(){
+    public MsSqlServerConnection() {
         executorService = Executors.newScheduledThreadPool(1);
         properties = ApplicationProperties.getInstance();
         support = new PropertyChangeSupport(this);
@@ -31,9 +30,7 @@ public class MsSqlServerConnection implements Database {
         checkDbConfigurations();
     }
 
-
-    public void connect()
-    {
+    public void connect() {
         try {
             Class.forName(properties.getDbDriver());
             connection = DriverManager.getConnection(properties.getDbUrl(), properties.getDbUser(), properties.getDbPassword());
@@ -42,17 +39,15 @@ public class MsSqlServerConnection implements Database {
         }
     }
 
-
-    private boolean isConnected() throws SQLException{
+    private boolean isConnected() throws SQLException {
         return !connection.isClosed();
     }
-
 
     @Override
     public void insert(String deviceEUI, int hum, int temp, int co2, int servo, Timestamp time) {
         connect();
         try {
-            if(isConnected()){
+            if (isConnected()) {
                 String query = String.format("INSERT INTO %s (timestamp, humidityPercentage, carbonDioxide, temperature, servoPositionPercentage, deviceEUI) VALUES ('%s', %d, %d, %d, %d, '%s')", properties.getDbTableNameMeasurement(), time, hum, co2, temp, servo, deviceEUI);
                 Statement statement = connection.createStatement();
                 statement.executeUpdate(query);
@@ -65,12 +60,12 @@ public class MsSqlServerConnection implements Database {
         }
     }
 
-    private void checkDbConfigurations(){
+    private void checkDbConfigurations() {
         executorService.scheduleAtFixedRate(() -> {
                     try {
                         connect();
 
-                        if(isConnected()){
+                        if (isConnected()) {
                             String query = String.format("SELECT r.deviceEUI, s.settingsId, s.temperatureSetpoint, s.ppmMin, s.ppmMax " +
                                     "FROM %s s " +
                                     "JOIN %s r ON s.settingsId = s.settingsId " +
@@ -82,7 +77,7 @@ public class MsSqlServerConnection implements Database {
 
                             ArrayList<ConfigModel> configUpdates = new ArrayList<>();
 
-                            while(rs.next()) {
+                            while (rs.next()) {
                                 ConfigModel config = new ConfigModel();
 
                                 config.id = rs.getInt("settingsId");
@@ -94,7 +89,7 @@ public class MsSqlServerConnection implements Database {
                                 configUpdates.add(config);
                             }
 
-                            if(configUpdates.size() > 0){
+                            if (configUpdates.size() > 0) {
                                 for (ConfigModel configuration : configUpdates) {
                                     support.firePropertyChange(EventTypes.NEW_CONFIGURATION_AVAILABLE.toString(), "", configuration);
                                     updateDbConfigTimeStamp(configuration);
@@ -115,7 +110,6 @@ public class MsSqlServerConnection implements Database {
                 0, properties.getDbCheckMinutes(), TimeUnit.MINUTES);
     }
 
-
     private void updateDbConfigTimeStamp(ConfigModel sentConfig) throws SQLException {
         String query = String.format("UPDATE %s " +
                 "SET sentToDevice = GETDATE()" +
@@ -128,7 +122,7 @@ public class MsSqlServerConnection implements Database {
 
     @Override
     public void addPropertyChangeListener(String name, PropertyChangeListener listener) {
-        if (name == null){
+        if (name == null) {
             support.addPropertyChangeListener(listener);
         } else {
             support.addPropertyChangeListener(name, listener);
