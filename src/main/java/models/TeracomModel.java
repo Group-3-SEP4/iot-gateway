@@ -44,7 +44,7 @@ public class TeracomModel {
     public Float lat;
     @SerializedName("ts")
     @Expose
-    public String ts; // TODO: Change this to sql TimeStamp
+    public String ts;
     @SerializedName("cache")
     @Expose
     public TeracomModel[] cache;

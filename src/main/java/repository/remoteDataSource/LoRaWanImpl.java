@@ -28,13 +28,6 @@ public class LoRaWanImpl implements LoRaWan {
 		logger = Logger.getLogger(this.getClass().getName());
 		url = ApplicationProperties.getInstance().getLoraUrl() + ApplicationProperties.getInstance().getLoraToken();
 		connect();
-
-		//TODO: Should be seperate method in another class, where it asks for the cache on demand.
-//		JSONObject jsonObject = new JSONObject();
-//		jsonObject.put("cmd", "cq");
-//		jsonObject.put("page", "1");
-//		jsonObject.put("perPage", "1");
-//		server.sendText(jsonObject.toString(), true);
 	}
 
 
@@ -92,20 +85,16 @@ public class LoRaWanImpl implements LoRaWan {
 	//onPing()
 	@Override
 	public CompletionStage<?> onPing(WebSocket webSocket, ByteBuffer message) {
-//		logger.log(Level.INFO, "Ping: Client ---> Server. Message: " + message.asCharBuffer().toString()); // TODO: Use another logger, so Debug log can be chosen instead of info to get more graining.
 		webSocket.request(1);
 		return CompletableFuture.completedFuture("Ping completed.");
-//		return CompletableFuture.completedFuture("Ping completed.").thenAccept(System.out::println);
 	}
 
 
 	//onPong()
 	@Override
 	public CompletionStage<?> onPong(WebSocket webSocket, ByteBuffer message) {
-//		logger.log(Level.INFO, "Pong: Client ---> Server. Message: " + message.asCharBuffer().toString());
 		webSocket.request(1);
 		return CompletableFuture.completedFuture("Pong completed.");
-//		return CompletableFuture.completedFuture("Pong completed.").thenAccept(System.out::println);
 	}
 
 
@@ -115,7 +104,6 @@ public class LoRaWanImpl implements LoRaWan {
 		String message = data.toString().substring(0, Math.min(data.toString().length(), 200)) + " [...]";
 		logger.log(Level.INFO, "onText(Last:" + last + "): " + message);
 		// As sequence received can be send on multiple occasions, method collects until boolean last is true, then proceeds with the data.
-
 		this.data += data.toString();
 		if (last) {
 			support.firePropertyChange(EventTypes.NEW_LORA_DATA_RECEIVED.toString(), "", this.data);
@@ -124,7 +112,6 @@ public class LoRaWanImpl implements LoRaWan {
 		webSocket.request(1);
 
 		return CompletableFuture.completedFuture("onText() completed.");
-//		return CompletableFuture.completedFuture("onText() completed.").thenAccept(System.out::println);
 	}
 
 	@Override

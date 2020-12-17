@@ -37,7 +37,6 @@ public class MsSqlServerConnection implements Database {
         try {
             Class.forName(properties.getDbDriver());
             connection = DriverManager.getConnection(properties.getDbUrl(), properties.getDbUser(), properties.getDbPassword());
-//            System.out.println("connected to database at: " + db_connect_string);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -135,15 +134,5 @@ public class MsSqlServerConnection implements Database {
             support.addPropertyChangeListener(name, listener);
         }
     }
-
-
-//    // test sql
-//    public static void main(String[] args)
-//    {
-//        System.out.println(properties.getDbUser());
-//        System.out.println(properties.getDbPassword());
-//        MsSqlServer connServer = new MsSqlServer();
-//        connServer.connect(properties.getDbUrl(), properties.getDbUser(),properties.getDbPassword());
-//    }
 }
 
